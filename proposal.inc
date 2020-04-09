@@ -35,7 +35,7 @@ function arduino_projects_blog_proposal_form($form, &$form_state, $no_js_use = F
 	$proposal_data = $proposal_q->fetchObject();
 	if ($proposal_data)
 	{
-		if ($proposal_data->approval_status == 0 || $proposal_data->approval_status == 1)
+		if ($proposal_data->approval_status == 0 || $proposal_data->approval_status == 1 || $proposal_data->approval_status == 2)
 		{
 			drupal_set_message(t('We have already received your proposal.'), 'status');
 			drupal_goto('');
