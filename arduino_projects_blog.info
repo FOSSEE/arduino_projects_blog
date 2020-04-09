@@ -1,0 +1,6 @@
+name = Arduino Projects Blog
+description = Module to accept Arduino projects
+package = IITB
+version = 7.1
+core = 7.x
+
