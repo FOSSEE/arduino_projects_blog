@@ -442,8 +442,8 @@ if (isset($_FILES['files']))
 				if ($_FILES['files']['size'][$file_form_name] <= 0)
 					form_set_error($file_form_name, t('File size cannot be zero.'));
 				/* check if valid file name */
-				/*if (!_check_valid_filename($_FILES['files']['name'][$file_form_name]))
-					form_set_error($file_form_name, t('Invalid file name specified. Only alphabets and numbers are allowed as a valid filename.'));*/
+				if (!arduino_projects_blog_check_valid_filename($_FILES['files']['name'][$file_form_name]))
+					form_set_error($file_form_name, t('Invalid file name specified. Only alphabets and numbers are allowed as a valid filename.'));
 			} //$file_name
 		} //$_FILES['files']['name'] as $file_form_name => $file_name
 	} 
@@ -645,7 +645,7 @@ function arduino_projects_blog_my_proposal()
 	/* check if there are any pending proposals */
 	if (!$my_proposal_rows)
 	{
-		drupal_set_message(t('There are no proposals to edit.'), 'status');
+		drupal_set_message(t('You do not have any active submissions. Click here to propose'), 'status');
 		return '';
 	} //!$pending_rows
 	$my_proposal_header = array(

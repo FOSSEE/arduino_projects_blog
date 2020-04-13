@@ -45,7 +45,7 @@ Your proposal is under review. You will be notified via email about the approval
 
 Best Wishes,
 
-!site_name Arduino Projects Team,
+!site_name Team,
 FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
@@ -73,7 +73,7 @@ FOSSEE, IIT Bombay', array(
 				'body' => t('
 Dear ' . $proposal_data->contributor_name . ',
 
-Please resubmit your proposal with the following detailss:
+We like to inform you that your Open Source Hardware Project proposal with the following details
 
 Full Name: ' . $proposal_data->contributor_name . '
 Email: ' . $user_data->mail . '
@@ -83,15 +83,19 @@ How did you hear about us:' . $proposal_data->how_did_you_hear_about_us . '
 Project Title: ' . $proposal_data->project_title . '
 Abstract: ' . $proposal_data->abstract . '
 References: ' . $proposal_data->reference . '
-Reason(s) / Feedback: ' . $proposal_data->resubmit_comment . '
 
+must be resubmitted after making changes considering the following reviewer’s comments.
 
-Your proposal is under review. You will be notified via email about the approval/disapproval within ten working days.
+Comment: ' . $proposal_data->resubmit_comment . '
+
+Failing to do so within 2 weeks from today, will automatically lead to disapproval of the proposal. Please note that once you resubmit the proposal, it will be reviewed again.
+
+Thank you for participating in the Open Source Hardware Project and looking forward to your response.
 
 
 Best Wishes,
 
-!site_name Arduino Projects Team,
+!site_name Team,
 FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
@@ -125,7 +129,6 @@ Full Name: ' . $proposal_data->contributor_name . '
 Email: ' . $user_data->mail . '
 University/Institute: ' . $proposal_data->university . '
 City: ' . $proposal_data->city . '
-
 Project Title: ' . $proposal_data->project_title . '
 Abstract: ' . $proposal_data->abstract . '
 
@@ -133,12 +136,13 @@ Reason(s) / Feedback: ' . $proposal_data->dissapproval_reason . '
 
 Please note that any files that were uploaded along with the proposal form will be deleted from all our database(s).
 
-Thank you for participating in the Arduino Project. You are welcome to submit a new proposal.
+Thank you for participating in the  Open Source Hardware Project. You are welcome to submit a new proposal.
+
 
 
 Best Wishes,
 
-!site_name Arduino Projects Team,
+!site_name Team,
 FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
@@ -182,7 +186,7 @@ Please ensure that ALL the guidelines for coding at https://om.fossee.in/powersy
 
 Best Wishes,
 
-!site_name Arduino Projects Team,
+!site_name Team,
 FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
@@ -240,7 +244,7 @@ Thank you for participating in the Arduino Project Project. You are welcome to p
 
 Best Wishes,
 
-!site_name Arduino Projects Team,
+!site_name Team,
 FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
@@ -300,7 +304,7 @@ You can propose a new Arduino project.
 
 Best Wishes,
 
-!site_name Arduino Projects Team,
+!site_name Team,
 FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
@@ -343,7 +347,7 @@ You shall be notified via email after the model and abstract are reviewed and ap
 
 Best Wishes,
 
-!site_name Arduino Projects Team,
+!site_name Team,
 FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
