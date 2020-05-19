@@ -16,7 +16,6 @@ function arduino_projects_blog_mail($key, &$message, $params)
 			$query->condition('id', $params['arduino_projects_blog_proposal_received']['proposal_id']);
 			$query->range(0, 1);
 			$proposal_data = $query->execute()->fetchObject();
-			$phpdate = time( $proposal_data->creation_date );
 			$user_data = user_load($params['arduino_projects_blog_proposal_received']['user_id']);
 			$message['headers'] = $params['arduino_projects_blog_proposal_received']['headers'];
 			$message['subject'] = t('[!site_name][Arduino Project] Your Arduino Project proposal has been received', array(
@@ -39,9 +38,7 @@ Project Title: ' . $proposal_data->project_title . '
 Abstract: ' . $proposal_data->abstract . '
 References: ' . $proposal_data->reference . '
 
-
 Your proposal is under review. You will be notified via email about the approval/disapproval within ten working days.
-
 
 Best Wishes,
 
@@ -61,7 +58,6 @@ FOSSEE, IIT Bombay', array(
 			$query->condition('id', $params['arduino_projects_blog_proposal_resubmit']['proposal_id']);
 			$query->range(0, 1);
 			$proposal_data = $query->execute()->fetchObject();
-			$phpdate = time( $proposal_data->creation_date );
 			$user_data = user_load($params['arduino_projects_blog_proposal_resubmit']['user_id']);
 			$message['headers'] = $params['arduino_projects_blog_proposal_resubmit']['headers'];
 			$message['subject'] = t('[!site_name][Arduino Project] Your Arduino Project proposal has been marked for resubmission', array(
@@ -111,7 +107,6 @@ FOSSEE, IIT Bombay', array(
 			$query->condition('id', $params['arduino_projects_blog_proposal_disapproved']['proposal_id']);
 			$query->range(0, 1);
 			$proposal_data = $query->execute()->fetchObject();
-			$phpdate = time( $proposal_data->creation_date );
 			$user_data = user_load($params['arduino_projects_blog_proposal_disapproved']['user_id']);
 			$message['headers'] = $params['arduino_projects_blog_proposal_disapproved']['headers'];
 			$message['subject'] = t('[!site_name][Arduino Project] Your Arduino Project Project proposal has been disapproved', array(

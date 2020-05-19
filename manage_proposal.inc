@@ -707,19 +707,6 @@ function arduino_projects_blog_proposal_edit_form($form, &$form_state)
 		return;
 	}
 	$user_data = user_load($proposal_data->uid);
-	$form['name_title'] = array(
-		'#type' => 'select',
-		'#title' => t('Title'),
-		'#options' => array(
-			'Dr' => 'Dr',
-			'Prof' => 'Prof',
-			'Mr' => 'Mr',
-			'Mrs' => 'Mrs',
-			'Ms' => 'Ms'
-		),
-		'#required' => TRUE,
-		'#default_value' => $proposal_data->name_title
-	);
 	$form['contributor_name'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Name of the Proposer'),
@@ -732,20 +719,6 @@ function arduino_projects_blog_proposal_edit_form($form, &$form_state)
 		'#type' => 'item',
 		'#title' => t('Email'),
 		'#markup' => $user_data->mail
-	);
-	$form['month_year_of_degree'] = array(
-		'#type' => 'date_popup',
-		'#title' => t('Month and year of award of degree'),
-		'#date_label_position' => '',
-		'#description' => '',
-		'#default_value' => $proposal_data->month_year_of_degree,
-		'#date_format' => 'M-Y',
-		'#date_increment' => 0,
-		'#date_year_range' => '1960:+0',
-		'#datepicker_options' => array(
-			'maxDate' => 0
-		),
-		'#required' => FALSE
 	);
 	$form['university'] = array(
 		'#type' => 'textfield',
@@ -865,13 +838,13 @@ else{
 		'#required' => TRUE,
 		'#default_value' => $proposal_data->project_title
 	);
-	$form['description'] = array(
+	$form['abstract'] = array(
 		'#type' => 'textarea',
 		'#title' => t('Description of the Project'),
 		'#size' => 250,
 		'#maxlength' => 250,
 		'#required' => TRUE,
-		'#default_value' => $proposal_data->description
+		'#default_value' => $proposal_data->abstract
 	);
 	$form['reference'] = array(
 		'#type' => 'textarea',

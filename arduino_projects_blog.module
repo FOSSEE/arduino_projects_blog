@@ -1,8 +1,8 @@
 <?php
 // $Id$
-/*error_reporting(E_ALL);
+error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
-ini_set('display_startup_errors', TRUE);*/
+ini_set('display_startup_errors', TRUE);
 require_once('general_deletion.inc');
 require_once('email.inc');
 /**
@@ -134,6 +134,102 @@ function arduino_projects_blog_menu()
 		'type' => MENU_CALLBACK,
 		'file' => 'manage_proposal.inc'
 	);
+	/* Final project Submission*/
+	$items['arduino-projects/code'] = array(
+		'title' => 'Project Submission',
+		'description' => 'Project Submission',
+		'page callback' => 'list_steps',
+		'access callback' => 'user_access',
+		'access arguments' => array(
+			'arduino projects upload code'
+		),
+		'file' => 'upload_project.inc'
+	);
+	$items['arduino-projects/code/list-steps'] = array(
+		'title' => 'List Steps',
+		'description' => 'List Steps',
+		'page callback' => 'list_steps',
+		'access arguments' => array(
+			'arduino projects upload code'
+		),
+		'type' => MENU_DEFAULT_LOCAL_TASK,
+		'file' => 'upload_project.inc',
+		'weight' => 1
+	);
+	$items['arduino-projects/code/view-step'] = array(
+		'title' => 'View Step',
+		'description' => 'View Step',
+		'page callback' => 'view_steps',
+		'access arguments' => array(
+			'arduino projects upload code'
+		),
+		'type' => MENU_CALLBACK,
+		'file' => 'upload_project.inc',
+		'weight' => 3
+	);
+	$items['arduino-projects/code/step/edit'] = array(
+		'title' => 'Edit Step',
+		'description' => 'Edit Step',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'upload_step_edit_form'
+		),
+		'access arguments' => array(
+			'arduino projects edit uploaded step'
+		),
+		'type' => MENU_CALLBACK,
+		'file' => 'editstep.inc'
+	);
+	$items['arduino-projects/code/upload'] = array(
+		'title' => 'Project Submission',
+		'description' => 'Project Submission',
+		'page callback' => 'upload_examples',
+		'access arguments' => array(
+			'arduino projects upload code'
+		),
+		'type' => MENU_LOCAL_TASK,
+		'file' => 'code.inc',
+		'weight' => 3
+	);
+	$items['arduino-projects/code/update-introduction'] = array(
+		'title' => 'Introduction',
+		'description' => 'Introduction',
+		'page callback' => 'update_introduction',
+		'access arguments' => array(
+			'arduino projects upload code'
+		),
+		'type' => MENU_LOCAL_TASK,
+		'file' => 'upload_project.inc',
+		'weight' => 2
+	);
+	$items['arduino-projects/code-approval/step'] = array(
+		'title' => 'Step approval form',
+		'description' => 'Step approval form',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'step_approval_form'
+		),
+		'access arguments' => array(
+			'arduino projects bulk manage code'
+		),
+		'type' => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => 1,
+		'file' => 'code_approval.inc'
+	);
+	$items['arduino-projects/code-approval/bulk'] = array(
+		'title' => 'Bulk Manage',
+		'description' => 'Bulk Manage',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'bulk_approval_form'
+		),
+		'access arguments' => array(
+			'arduino projects bulk manage code'
+		),
+		'type' => MENU_LOCAL_TASK,
+		'weight' => 2,
+		'file' => 'code_approval.inc'
+	);
 	$items['arduino-projects/abstract-approval/bulk'] = array(
 		'title' => 'Bulk Manage',
 		'description' => 'Bulk Mangage',
@@ -148,31 +244,6 @@ function arduino_projects_blog_menu()
 		'weight' => 2,
 		'file' => 'abstract_bulk_approval.inc'
 	);
-	/* CODE UPLOAD */
-	$items['arduino-projects/abstract-code'] = array(
-		'title' => 'Abstract and Arduino Projects Submission',
-		'description' => 'Abstract Submission',
-		'page callback' => 'arduino_projects_blog_abstract',
-		'access callback' => 'user_access',
-		'access arguments' => array(
-			'arduino projects upload code'
-		),
-		'file' => 'upload_code.inc'
-	);
-	$items['arduino-projects/abstract-code/upload'] = array(
-		'title' => 'Abstract and Arduino Projects Submission',
-		'description' => 'Abstract Submission',
-		'page callback' => 'drupal_get_form',
-		'page arguments' => array(
-			'arduino_projects_blog_upload_abstract_code_form'
-		),
-		'access arguments' => array(
-			'arduino projects upload code'
-		),
-		'type' => MENU_LOCAL_TASK,
-		'file' => 'upload_code.inc',
-		'weight' => 2
-	);
 	/* CODE DOWNLOADS */
 	$items['arduino-projects/download/reference-images'] = array(
 		'title' => 'Download Reference Images',
@@ -180,6 +251,26 @@ function arduino_projects_blog_menu()
 		'page callback' => 'arduino_projects_blog_download_reference_images',
 		'access arguments' => array(
 			'arduino projects download reference images'
+		),
+		'type' => MENU_CALLBACK,
+		'file' => 'download.inc'
+	);
+	$items['arduino-projects/download/step-images'] = array(
+		'title' => 'Download Step Images',
+		'description' => 'Download Step Images',
+		'page callback' => 'arduino_projects_blog_download_step_images',
+		'access arguments' => array(
+			'arduino projects download step files'
+		),
+		'type' => MENU_CALLBACK,
+		'file' => 'download.inc'
+	);
+	$items['arduino-projects/download/step-gifs'] = array(
+		'title' => 'Download Step Gifs',
+		'description' => 'Download Step Gifs',
+		'page callback' => 'arduino_projects_blog_download_step_gifs',
+		'access arguments' => array(
+			'arduino projects download step files'
 		),
 		'type' => MENU_CALLBACK,
 		'file' => 'download.inc'
@@ -213,24 +304,6 @@ function arduino_projects_blog_menu()
 		),
 		'type' => MENU_CALLBACK,
 		'file' => 'full_download.inc'
-	);
-	/* COMPLETED arduino projectsS */
-	$items['arduino-projects/completed-pssp'] = array(
-		'title' => 'Completed Arduino Projectss',
-		'page callback' => 'arduino_projects_blog_completed_proposals_all',
-		'access arguments' => array(
-			'arduino projects download code'
-		),
-		'file' => 'pssp_details.inc'
-	);
-	/* LABS IN PROGRESS */
-	$items['arduino-projects/pssp-progress'] = array(
-		'title' => 'Arduino Projectss in Progress',
-		'page callback' => 'arduino_projects_blog_progress_all',
-		'access arguments' => array(
-			'arduino projects download code'
-		),
-		'file' => 'pssp_details.inc'
 	);
 	/* DOWNLOAD FOR EVERYONE */
 	$items['arduino-projects/arduino-projects-run'] = array(
@@ -313,8 +386,10 @@ function arduino_projects_blog_menu()
 		'type' => MENU_CALLBACK,
 		'file' => 'pdf/verify_certificates.inc'
 	);
+	
 	return $items;
 }
+
 /**
  * Implementation of hook_perm().
  */
@@ -349,12 +424,20 @@ function arduino_projects_blog_permission()
 			'title' => t('arduino projects approve proposal'),
 			'restrict access' => TRUE
 		),
+		'arduino projects edit uploaded step' => array(
+			'title' => t('arduino projects edit uploaded step'),
+			'restrict access' => TRUE
+		),
 		'arduino projects propose solution' => array(
 			'title' => t('arduino projects propose solution'),
 			'restrict access' => TRUE
 		),
 		'arduino projects approve abstract' => array(
 			'title' => t('arduino projects approve code'),
+			'restrict access' => TRUE
+		),
+		'arduino projects bulk manage code' => array(
+			'title' => t('arduino projects bulk manage code'),
 			'restrict access' => TRUE
 		),
 		'arduino projects bulk manage abstract' => array(
@@ -375,6 +458,10 @@ function arduino_projects_blog_permission()
 		),
 		'arduino projects download reference images' => array(
 			'title' => t('arduino projects download reference images'),
+			'restrict access' =>TRUE
+		),
+		'arduino projects download step files' => array(
+			'title' => t('arduino projects download step files'),
 			'restrict access' =>TRUE
 		),
 		'administer arduino projects' => array(
@@ -418,13 +505,7 @@ function arduino_projects_blog_check_name($name = '')
 	else
 		return TRUE;
 }
-function arduino_projects_blog_check_code_number($number = '')
-{
-	if (!preg_match('/^[0-9]+$/', $number))
-		return FALSE;
-	else
-		return TRUE;
-}
+
 /************************* USER VERIFICATION FUNCTIONS ************************/
 function arduino_projects_blog_get_proposal()
 {
@@ -568,6 +649,48 @@ function _df_list_of_departments()
 	} //$department_list_data = $department_list->fetchObject()
 	return $department;
 }
+function generateVideoEmbedUrl($url){
+    //This is a general function for generating an embed link of an FB/Vimeo/Youtube Video.
+    $finalUrl = '';
+    if(strpos($url, 'facebook.com/') !== false) {
+        //it is FB video
+        $finalUrl.='https://www.facebook.com/plugins/video.php?href='.rawurlencode($url).'&show_text=1&width=200';
+    }else if(strpos($url, 'vimeo.com/') !== false) {
+        //it is Vimeo video
+        $videoId = explode("vimeo.com/",$url)[1];
+        if(strpos($videoId, '&') !== false){
+            $videoId = explode("&",$videoId)[0];
+        }
+        $finalUrl.='https://player.vimeo.com/video/'.$videoId;
+    }else if(strpos($url, 'youtube.com/') !== false) {
+        //it is Youtube video
+        $videoId = explode("v=",$url)[1];
+        if(strpos($videoId, '&') !== false){
+            $videoId = explode("&",$videoId)[0];
+        }
+        $finalUrl.='https://www.youtube.com/embed/'.$videoId;
+    }else if(strpos($url, 'youtu.be/') !== false){
+        //it is Youtube video
+        $videoId = explode("youtu.be/",$url)[1];
+        if(strpos($videoId, '&') !== false){
+            $videoId = explode("&",$videoId)[0];
+        }
+        $finalUrl.='https://www.youtube.com/embed/'.$videoId;
+    }else{
+        //Enter valid video URL
+    }
+    return $finalUrl;
+}
+function convertLinkToEmbed($videoLink, $width, $height)
+    {
+        $embed = '';
+        if (preg_match('/https:\/\/(?:www.)?(youtube).com\/watch\\?v=(.*?)/', $videoLink))
+            $embed = preg_replace("/\s*[a-zA-Z\/\/:\.]*youtube.com\/watch\?v=([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i", "<iframe width=\"" . $width . "\" height=\"" . $height . "\" src=\"//www.youtube.com/embed/$1\" frameborder=\"0\" allowfullscreen></iframe>", $videoLink);
+        if (preg_match('/https:\/\/vimeo.com\/(\\d+)/', $videoLink, $regs))
+            $embed = '<iframe src="http://player.vimeo.com/video/' . $regs[1] . '?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;color=ffffff" width="' . $width . '" height="' . $height . '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
+        return $embed;
+
+    }
 function _apb_dir_name($project, $proposar_name)
 {
 

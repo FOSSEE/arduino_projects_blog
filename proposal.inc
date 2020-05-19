@@ -18,6 +18,7 @@ Solution Display :
 function arduino_projects_blog_proposal_form($form, &$form_state, $no_js_use = FALSE)
 {
 	global $user;
+	$root_path = arduino_projects_blog_files_path();
 	/************************ start approve book details ************************/
 	if ($user->uid == 0)
 	{
@@ -215,13 +216,7 @@ function arduino_projects_blog_proposal_form($form, &$form_state, $no_js_use = F
 		'#attributes' => array(
 			'placeholder' => 'The links to the documents or websites which are referenced while proposing this project.'
 		)
-
 	);
-	/*$form['reference_files']['reference_image'] = array(
-		'#type' => 'file',
-		'#size' => 48,
-		'#description' => t('Upload filenames with allowed extensions only. No spaces or any special characters allowed in filename.') . '<br />' . t('<span style="color:red;">Allowed file extensions: ') . variable_get('reference_image_extensions', '') . '</span>'
-	);*/
 	$form['reference_files'] = array(
             '#type' => 'fieldset',
             '#tree' => TRUE,
@@ -241,7 +236,9 @@ function arduino_projects_blog_proposal_form($form, &$form_state, $no_js_use = F
                 '#description' => t('Upload filenames with allowed extensions only. No spaces or any special characters allowed in filename.') . '<br />' . t('<span style="color:red;">Allowed file extensions: ') . variable_get('reference_image_extensions', '') . '</span>',
                 // We need this to know which file element this is.
                 // By default drupal would name all as files[reference_files]
-                '#name' => 'files[reference_files_' . $i . '_name]'
+                '#name' => 'files[reference_files_' . $i . '_name]',
+                //'#attributes' => array('multiple' => 'multiple'),
+                //'#upload_location' => 'public://images/proposal_images',
             );
             $form['reference_files']["images_count"] = array(
 				"#type" => "hidden",
