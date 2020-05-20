@@ -15,7 +15,8 @@ function arduino_projects_blog_proposal_pending()
 			date('d-m-Y', $pending_data->creation_date),
 			l($pending_data->contributor_name, 'user/' . $pending_data->uid),
 			$pending_data->project_title,
-			l('View', 'arduino-projects/manage-proposal/approve/' . $pending_data->id) . ' | ' . l('Edit', 'arduino-projects/manage-proposal/edit/' . $pending_data->id)
+			l('View', 'arduino-projects/manage-proposal/approve/' . $pending_data->id)
+			//l('View', 'arduino-projects/manage-proposal/approve/' . $pending_data->id) . ' | ' . l('Edit', 'arduino-projects/manage-proposal/edit/' . $pending_data->id)
 		);
 	} //$pending_data = $pending_q->fetchObject()
 	/* check if there are any pending proposals */
@@ -83,7 +84,8 @@ function arduino_projects_blog_proposal_all()
 			$proposal_data->project_title,
 			$actual_completion_date,
 			$approval_status,
-			l('Status', 'arduino-projects/manage-proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'arduino-projects/manage-proposal/edit/' . $proposal_data->id)
+			l('Status', 'arduino-projects/manage-proposal/status/' . $proposal_data->id)
+			//l('Status', 'arduino-projects/manage-proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'arduino-projects/manage-proposal/edit/' . $proposal_data->id)
 		);
 	} //$proposal_data = $proposal_q->fetchObject()
 	/* check if there are any pending proposals */
@@ -455,7 +457,7 @@ function arduino_projects_blog_proposal_status_form($form, &$form_state)
 	}
 	$form['contributor_name'] = array(
 		'#type' => 'item',
-		'#markup' => l($proposal_data->name_title . ' ' . $proposal_data->contributor_name, 'user/' . $proposal_data->uid),
+		'#markup' => l($proposal_data->contributor_name, 'user/' . $proposal_data->uid),
 		'#title' => t('Student name')
 	);
 	$form['student_email_id'] = array(
@@ -503,40 +505,12 @@ function arduino_projects_blog_proposal_status_form($form, &$form_state)
 		'#markup' => $proposal_data->pincode,
 		'#title' => t('Pincode/Postal code')
 	);
-	$form['project_guide_name'] = array(
-		'#type' => 'item',
-		'#title' => t('Project guide'),
-		'#markup' => $proposal_data->project_guide_name
-	);
-	$form['project_guide_email_id'] = array(
-		'#type' => 'item',
-		'#title' => t('Project guide email'),
-		'#markup' => $proposal_data->project_guide_email_id
-	);
 	$form['project_title'] = array(
 		'#type' => 'item',
 		'#markup' => $proposal_data->project_title,
 		'#title' => t('Title of the Project')
 	);
-	if (($proposal_data->samplefilepath != "") && ($proposal_data->samplefilepath != 'NULL'))
-	{
-		$str = substr($proposal_data->samplefilepath,strrpos($proposal_data->samplefilepath, '/'));
-		$resource_file =ltrim($str, '/');
-		
-		$form['samplefilepath'] = array(
-			'#type' => 'item',
-			'#title' => t('Abstract file '),
-			'#markup' => l($resource_file, 'arduino-projects/download/resource-file/' . $proposal_id) . ""
-		);
-	} //$proposal_data->user_defined_compound_filepath != ""
-	else
-	{
-		$form['samplefilepath'] = array(
-			'#type' => 'item',
-			'#title' => t('Abstract file '),
-			'#markup' => "Not uploaded<br><br>"
-		);
-	}
+
 	/************************** reference link filter *******************/
 	$url = '~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i';
 	$reference = preg_replace($url, '<a href="$0" target="_blank" title="$0">$0</a>', $proposal_data->reference);
@@ -556,6 +530,9 @@ function arduino_projects_blog_proposal_status_form($form, &$form_state)
 			$proposal_status = t('Approved');
 			break;
 		case 2:
+			$proposal_status = t('Marked for Resubmission');
+			break;
+		case 4: 
 			$proposal_status = t('Dis-approved');
 			break;
 		case 3:
@@ -586,14 +563,21 @@ function arduino_projects_blog_proposal_status_form($form, &$form_state)
 			'#description' => t('Check if user has provided all the required files and pdfs.')
 		);
 	} //$proposal_data->approval_status == 1
-	if ($proposal_data->approval_status == 2)
+	else if ($proposal_data->approval_status == 2)
 	{
 		$form['message'] = array(
 			'#type' => 'item',
-			'#markup' => $proposal_data->message,
-			'#title' => t('Reason for disapproval')
+			'#markup' => $proposal_data->resubmit_comment,
+			'#title' => t('Reason for resubmission')
 		);
 	} //$proposal_data->approval_status == 2
+	else if($proposal_data->approval_status == 4){
+		$form['message'] = array(
+			'#type' => 'item',
+			'#markup' => $proposal_data->dissapproval_reason,
+			'#title' => t('Reason for Dis-approval')
+		);
+	}
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => t('Submit')

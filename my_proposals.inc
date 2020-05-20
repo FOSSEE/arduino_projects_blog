@@ -233,7 +233,7 @@ else{
         	$temp_no = $i;
             $form['reference_files'][$i]['image'] = array(
                 //'#title' => t('Add Event Image'),
-                '#type' => 'managed_file',
+                '#type' => 'file',
                 '#weight' => '5',
                 '#description' => t('Upload filenames with allowed extensions only. No spaces or any special characters allowed in filename.') . '<br />' . t('<span style="color:red;">Allowed file extensions: ') . variable_get('reference_image_extensions', '') . '</span>',
                 // We need this to know which file element this is.
