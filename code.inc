@@ -19,10 +19,10 @@ function upload_examples_form($form, &$form_state, $no_js_use = FALSE)
     $proposal_data = $result->fetchObject();
     if (!$proposal_data)
       {
-        drupal_set_message("Please submit a " . l('proposal', 'textbook-companion/proposal') . ".", 'error');
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
         drupal_goto('');
       }
-    if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4)
+    if ($proposal_data->approval_status != 1)
       {
         switch ($proposal_data->approval_status)
         {
@@ -32,19 +32,19 @@ function upload_examples_form($form, &$form_state, $no_js_use = FALSE)
                 return;
                 break;
             case 2:
-                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'error');
-                drupal_goto('');
+                drupal_set_message(t('Your proposal has been marked for resubmission. Please update your proposal' . l('here', 'arduino-projects/my-proposals') . 'and submit.'), 'status');
+                drupal_goto('arduino-projects/my-proposals');
                 return;
                 break;
             case 3:
-                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'status');
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
                 drupal_goto('');
                 return;
                 break;
-case 5:
-      drupal_set_message(t('You have submitted your all codes.'), 'status');
-      drupal_goto('');
-      return;
+            case 5:
+                  drupal_set_message(t('You have submitted your all codes.'), 'status');
+                  drupal_goto('');
+                  return;
             default:
                 drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
                 drupal_goto('');
@@ -273,7 +273,7 @@ $form['proposal_id'] = array(
     );
     $form['cancel'] = array(
         '#type' => 'markup',
-        '#value' => l(t('Cancel'), 'textbook-companion/code')
+        '#value' => l(t('Cancel'), 'arduino-projects/code')
     );
     return $form;
   }
@@ -376,7 +376,7 @@ function upload_examples_form_submit($form, &$form_state)
     $proposal_data = $result->fetchObject();
     if (!$proposal_data)
       {
-        drupal_set_message("Please submit a " . l('proposal', 'textbook-companion/proposal') . ".", 'error');
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
         drupal_goto('');
       }
     if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4)
@@ -389,12 +389,12 @@ function upload_examples_form_submit($form, &$form_state)
                 return;
                 break;
             case 2:
-                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'error');
+                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'error');
                 drupal_goto('');
                 return;
                 break;
             case 3:
-                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'status');
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
                 drupal_goto('');
                 return;
                 break;
@@ -477,19 +477,19 @@ case 5:
         if ($cur_example_d->approval_status == 1)
           {
             drupal_set_message(t("Example already approved. Cannot overwrite it."), 'error');
-            drupal_goto('textbook-companion/code');
+            drupal_goto('arduino-projects/code');
             return;
           }
         else if ($cur_example_d->approval_status == 0)
           {
             drupal_set_message(t("Example is under pending review. Delete the example and reupload it."), 'error');
-            drupal_goto('textbook-companion/code');
+            drupal_goto('arduino-projects/code');
             return;
           }
         else
           {
             drupal_set_message(t("Error uploading example. Please contact administrator."), 'error');
-            drupal_goto('textbook-companion/code');
+            drupal_goto('arduino-projects/code');
             return;
           }
       }
@@ -653,13 +653,13 @@ function _upload_examples_delete()
     if (!$example_data)
       {
         drupal_set_message('Invalid example.', 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     if ($example_data->approval_status != 0)
       {
         drupal_set_message('You cannnot delete an example after it has been approved. Please contact site administrator if you want to delete this example.', 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     /*$step_q = db_query("SELECT * FROM {arduino_projects_blog_step} WHERE id = %d LIMIT 1", $example_data->step_id);
@@ -673,7 +673,7 @@ function _upload_examples_delete()
     if (!$step_data)
       {
         drupal_set_message('You do not have permission to delete this example.', 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     /*$preference_q = db_query("SELECT * FROM {arduino_projects_blog_preference} WHERE id = %d LIMIT 1", $step_data->preference_id);
@@ -687,7 +687,7 @@ function _upload_examples_delete()
     if (!$proposal_data)
       {
         drupal_set_message('You do not have permission to delete this example.', 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     /*$proposal_q = db_query("SELECT * FROM {arduino_projects_blog_proposal} WHERE id = %d AND uid = %d LIMIT 1", $proposal_data->proposal_id, $user->uid);
@@ -702,7 +702,7 @@ function _upload_examples_delete()
     if (!$proposal_data)
       {
         drupal_set_message('You do not have permission to delete this example.', 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     /* deleting example files */
@@ -737,7 +737,7 @@ function _upload_examples_delete()
       {
         drupal_set_message('Error deleting example.', 'status');
       }
-    drupal_goto('textbook-companion/code');
+    drupal_goto('arduino-projects/code');
     return;
   }
 /******************************************************************************/

@@ -522,7 +522,7 @@ function arduino_projects_blog_proposal_form_submit($form, &$form_state)
 		":position" => $v['position'],
 		":how_did_you_hear_about_us" => $v['how_did_you_hear_about_us'],
 		":project_title" => $v['project_title'],
-		":abstract" => _df_sentence_case($v['abstract']),
+		":abstract" => $v['abstract'],
 		":reference" => $v['reference'],
 		":directory_name" => $directory_name,
 		":approval_status" => 0,
@@ -632,6 +632,9 @@ function arduino_projects_blog_my_proposal()
 		else if($my_proposals_data->approval_status == 1 or $my_proposals_data->approval_status == 3){
 			$action =	l('View', 'arduino-projects/my-proposals/view/' . $my_proposals_data->id);
 			}
+		else if($my_proposals_data->approval_status == 0){
+			$action = 'Proposal pending for review';
+		}
 		$my_proposal_rows[$my_proposals_data->id] = array(
 			date('d-m-Y', $my_proposals_data->creation_date),
 			l($my_proposals_data->contributor_name, 'user/' . $my_proposals_data->uid),

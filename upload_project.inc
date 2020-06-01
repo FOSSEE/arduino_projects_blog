@@ -23,7 +23,7 @@ function list_steps()
         drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
         drupal_goto('');
       }
-    if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4 && $proposal_data->approval_status != 2)
+    if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4)
       {
         switch ($proposal_data->approval_status)
         {
@@ -33,8 +33,8 @@ function list_steps()
                 return;
                 break;
             case 2:
-                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'error');
-                drupal_goto('');
+                drupal_set_message(t('Your proposal has been marked for resubmission. Please update your proposal and submit.'), 'status');
+                drupal_goto('arduino-projects/my-proposals');
                 return;
                 break;
             case 3:
@@ -82,11 +82,13 @@ function list_steps()
     $return_html = '';
     $return_html .= '<strong>Title of the Book:</strong><br />' . $proposal_data->project_title . '<br /><br />';
     $return_html .= '<strong>Contributor Name:</strong><br />' . $proposal_data->contributor_name . '<br /><br />';
+    if($intro_query_data){
     if($intro_query_data->is_submitted == 1){
         $return_html .= '<strong>Introduction</strong><br />';
         $return_html .= '<strong>Description:</strong>' . $intro_query_data->description;
         $return_html .= '<strong>Demo Video:</strong><br />' . convertLinkToEmbed($intro_query_data->demo_video, 450, 350) . '<br />';
     }
+    }   
     else{
     $return_html .= l('Update Introduction', 'arduino-projects/code/update-introduction') . '<br />';
     }
@@ -161,7 +163,7 @@ function update_introduction_form($form, &$form_state)
     $proposal_data = $result->fetchObject();
     if (!$proposal_data)
       {
-        drupal_set_message("Please submit a " . l('proposal', 'textbook-companion/proposal') . ".", 'error');
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
         drupal_goto('');
       }
     if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4)
@@ -174,12 +176,12 @@ function update_introduction_form($form, &$form_state)
                 return;
                 break;
             case 2:
-                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'error');
+                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'error');
                 drupal_goto('');
                 return;
                 break;
             case 3:
-                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'status');
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
                 drupal_goto('');
                 return;
                 break;
@@ -195,6 +197,12 @@ function update_introduction_form($form, &$form_state)
                 break;
         }
       }
+      $query_intro = db_select('arduino_projects_blog_introduction_step');
+      $query_intro->fields('arduino_projects_blog_introduction_step');
+      $query_intro->condition('proposal_id', $proposal_data->id);
+      $query_intro->condition('approval_status', 0);
+      $query_intro_q = $query_intro->execute();
+      $query_intro_data = $query_intro_q->fetchObject();
     /*$preference_q = db_query("SELECT * FROM {arduino_projects_blog_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
     $proposal_data = db_fetch_object($preference_q);*/
     /*$query = db_select('arduino_projects_blog_preference');
@@ -210,7 +218,46 @@ function update_introduction_form($form, &$form_state)
         drupal_goto('');
         return;
       }*/
-    $form['#attributes'] = array(
+      if($query_intro_data){
+        $form['#attributes'] = array(
+        'enctype' => "multipart/form-data"
+    );
+    $form['proposal_id'] =array(
+        '#type' => 'hidden',
+        '#default_value' => $proposal_data->id
+    );
+    $form['title'] = array(
+        '#type' => 'item',
+        '#markup' => t('Introduction'),
+        '#title' => t('Title'),
+        '#default_value' => t('Introduction')
+    );
+    $form['description'] = array(
+        '#type' => 'text_format',
+        '#title' => t('Description'),
+        '#required' => TRUE,
+        '#format' => $query_intro_data->description_type,
+        '#default_value' => $query_intro_data->description
+    );
+    $form['demo_video'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Demo video'),
+        '#size' => 600,
+        '#maxlength' => 600,
+        '#required' => TRUE,
+        '#default_value' => $query_intro_data->demo_video
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit')
+    );
+    $form['cancel'] = array(
+        '#type' => 'item',
+        '#markup' => l('Cancel', 'arduino-projects/code')
+    );
+      }
+    else{
+        $form['#attributes'] = array(
         'enctype' => "multipart/form-data"
     );
     $form['proposal_id'] =array(
@@ -244,6 +291,7 @@ function update_introduction_form($form, &$form_state)
         '#type' => 'item',
         '#markup' => l('Cancel', 'arduino-projects/code')
     );
+}
     return $form;
   }
 
@@ -255,8 +303,33 @@ function update_introduction_form($form, &$form_state)
         drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
         return;
     } //!$user->uid
-    /* inserting the user proposal */
+    $query = db_select('arduino_projects_blog_proposal');
+    $query->fields('arduino_projects_blog_proposal');
+    $query->condition('uid', $user->uid);
+    $query->orderBy('id', 'DESC');
+    $query->range(0, 1);
+    $result = $query->execute();
+    $proposal_data = $result->fetchObject();
+    $query_intro = db_select('arduino_projects_blog_introduction_step');
+    $query_intro->fields('arduino_projects_blog_introduction_step');
+    $query_intro->condition('proposal_id', $proposal_data->id);
+    $query_intro_q = $query_intro->execute();
+    $query_intro_data = $query_intro_q->fetchObject();
     $v = $form_state["values"];
+    if($query_intro_data){
+        $query = "UPDATE {arduino_projects_blog_introduction_step} SET description = :description, description_type = :description_type, demo_video = :demo_video, creation_date = :creation_date, is_submitted = :is_submitted WHERE id = :id";
+        $args = array(
+            ":description" => $v['description']['value'],
+            ":description_type" => $v['description']['format'],
+            ":demo_video" => $v['demo_video'],
+            ":creation_date" => time(),
+            ":is_submitted" => 1,
+            ":id" => $query_intro_data->id
+        );
+        $result = db_query($query, $args);
+    }
+    /* inserting the user proposal */
+    else{
     $result = "INSERT INTO {arduino_projects_blog_introduction_step} 
     (
     uid, 
@@ -291,6 +364,7 @@ function update_introduction_form($form, &$form_state)
     $intro_id = db_query($result, $args, array(
         'return' => Database::RETURN_INSERT_ID
     ));
+    }
     drupal_set_message(t('Introduction update successfully.'), 'status');
     drupal_goto('arduino-projects/code');
   }
@@ -312,7 +386,7 @@ function update_introduction_form($form, &$form_state)
     $proposal_data = $result->fetchObject();
     if (!$proposal_data)
       {
-        drupal_set_message("Please submit a " . l('proposal', 'textbook-companion/proposal') . ".", 'error');
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
         drupal_goto('');
       }
     if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4 && $proposal_data->approval_status != 2)
@@ -325,12 +399,12 @@ function update_introduction_form($form, &$form_state)
                 return;
                 break;
             case 2:
-                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'error');
+                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'error');
                 drupal_goto('');
                 return;
                 break;
             case 3:
-                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'status');
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
                 drupal_goto('');
                 return;
                 break;
@@ -361,7 +435,7 @@ function update_introduction_form($form, &$form_state)
     else
       {
         drupal_set_message(t('Invalid step.'), 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     /* get example list */
@@ -407,7 +481,7 @@ function update_introduction_form($form, &$form_state)
                     break;
                 default:
             }
-            $example_files .= l($example_files_data->filename, 'textbook-companion/download/file/' . $example_files_data->id) . ' (' . $file_type . ')<br />';
+            $example_files .= l($example_files_data->filename, 'arduino-projects/download/file/' . $example_files_data->id) . ' (' . $file_type . ')<br />';
           }
         if ($example_data->approval_status == 0)
           {
@@ -417,7 +491,7 @@ function update_introduction_form($form, &$form_state)
                    // $video,
                     $approval_status,
                     $example_files,
-                    /*l('Edit', 'textbook-companion/code/edit/' . $example_data->id) . ' | ' . l('Delete', 'textbook-companion/code/delete/' . $example_data->id, array(
+                    /*l('Edit', 'arduino-projects/code/edit/' . $example_data->id) . ' | ' . l('Delete', 'arduino-projects/code/delete/' . $example_data->id, array(
                         'attributes' => array(
                             'onClick' => 'return confirm("Are you sure you want to delete the example?")'
                         )
@@ -434,7 +508,7 @@ function update_introduction_form($form, &$form_state)
                    // $video,
                     $approval_status,
                     $example_files,
-                    l('Download', 'textbook-companion/download/example/' . $example_data->id)
+                    l('Download', 'arduino-projects/download/example/' . $example_data->id)
                 ),
                 'valign' => 'top'
             );
@@ -504,7 +578,7 @@ function all_steps_submitted_check_form_submit($form,&$form_state){
     $proposal_data = $result->fetchObject();
     if (!$proposal_data)
       {
-        drupal_set_message("Please submit a " . l('proposal', 'textbook-companion/proposal') . ".", 'error');
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
         drupal_goto('');
       }
     if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4 && $proposal_data->approval_status != 2)
@@ -517,12 +591,12 @@ function all_steps_submitted_check_form_submit($form,&$form_state){
                 return;
                 break;
             case 2:
-                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'error');
+                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'error');
                 drupal_goto('');
                 return;
                 break;
             case 3:
-                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'status');
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
                 drupal_goto('');
                 return;
                 break;

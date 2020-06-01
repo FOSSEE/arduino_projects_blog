@@ -202,6 +202,30 @@ function arduino_projects_blog_menu()
 		'file' => 'upload_project.inc',
 		'weight' => 2
 	);
+	$items['arduino-projects/code-approval'] = array(
+		'title' => 'Manage Project Approval',
+		'description' => 'Manage Project Approval',
+		'page callback' => 'introduction_approval',
+		'access arguments' => array(
+			'arduino projects bulk manage code'
+		),
+		'type' => MENU_NORMAL_ITEM,
+		'file' => 'code_approval.inc'
+	);
+	$items['arduino-projects/code-approval/introduction'] = array(
+		'title' => 'Introduction Approval',
+		'description' => 'Introduction Approval',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'introduction_approval_form'
+		),
+		'access arguments' => array(
+			'arduino projects bulk manage code'
+		),
+		'type' => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => 1,
+		'file' => 'code_approval.inc'
+	);
 	$items['arduino-projects/code-approval/step'] = array(
 		'title' => 'Step approval form',
 		'description' => 'Step approval form',
@@ -212,8 +236,8 @@ function arduino_projects_blog_menu()
 		'access arguments' => array(
 			'arduino projects bulk manage code'
 		),
-		'type' => MENU_DEFAULT_LOCAL_TASK,
-		'weight' => 1,
+		'type' => MENU_LOCAL_TASK,
+		'weight' => 2,
 		'file' => 'code_approval.inc'
 	);
 	$items['arduino-projects/code-approval/bulk'] = array(
@@ -227,7 +251,7 @@ function arduino_projects_blog_menu()
 			'arduino projects bulk manage code'
 		),
 		'type' => MENU_LOCAL_TASK,
-		'weight' => 2,
+		'weight' => 3,
 		'file' => 'code_approval.inc'
 	);
 	$items['arduino-projects/abstract-approval/bulk'] = array(
@@ -294,6 +318,34 @@ function arduino_projects_blog_menu()
 		),
 		'type' => MENU_CALLBACK,
 		'file' => 'download.inc'
+	);
+	$items['arduino-projects/projects-in-progress'] = array(
+		'title' => 'Projects in Progress',
+		'page callback' => 'arduino_projects_in_progress',
+		'access arguments' => array(
+			'arduino projects download code'
+		),
+		'file' => 'project_details.inc'
+	);
+	$items['arduino-projects/completed-projects'] = array(
+		'title' => 'Completed Projects',
+		'page callback' => 'arduino_projects_completed',
+		'access arguments' => array(
+			'arduino projects download code'
+		),
+		'file' => 'project_details.inc'
+	);
+	$items['arduino-projects/project-details'] = array(
+		'title' => 'Projects Details',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'arduino_projects_details'
+		),
+		//'page callback' => 'arduino_projects_details',
+		'access arguments' => array(
+			'arduino projects download code'
+		),
+		'file' => 'run.inc'
 	);
 	$items['arduino-projects/full-download/project'] = array(
 		'title' => 'Code Download',

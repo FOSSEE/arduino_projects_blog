@@ -115,7 +115,7 @@ function upload_step_edit_form($form, &$form_state, $no_js_use = FALSE)
         return;
       }
     $user_data = user_load($proposal_data->uid);
-    $form['#redirect'] = 'textbook-companion/code';
+    $form['#redirect'] = 'arduino-projects/code';
     $form['#attributes'] = array(
         'enctype' => "multipart/form-data"
     );
@@ -498,7 +498,7 @@ function upload_step_edit_form($form, &$form_state, $no_js_use = FALSE)
     );
     $form['cancel'] = array(
         '#type' => 'item',
-        '#markup' => l(t('Cancel'), 'textbook-companion/code')
+        '#markup' => l(t('Cancel'), 'arduino-projects/code')
     );
     return $form;
   }
@@ -835,8 +835,8 @@ function edit_chapter_title_form($form, $form_state)
     $proposal_data = $result->fetchObject();
     if (!$proposal_data)
       {
-        drupal_set_message("Please submit a " . l('proposal', 'textbook-companion/proposal') . ".", 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
+        drupal_goto('arduino-projects/code');
       }
     if ($proposal_data->proposal_status != 1 && $proposal_data->proposal_status != 4)
       {
@@ -844,22 +844,22 @@ function edit_chapter_title_form($form, $form_state)
         {
             case 0:
                 drupal_set_message(t('We have already received your proposal. We will get back to you soon.'), 'status');
-                drupal_goto('textbook-companion/code');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
             case 2:
                 drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'proposal') . '.'), 'error');
-                drupal_goto('textbook-companion/code');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
             case 3:
-                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'status');
-                drupal_goto('textbook-companion/code');
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
             default:
                 drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
-                drupal_goto('textbook-companion/code');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
         }
@@ -876,7 +876,7 @@ function edit_chapter_title_form($form, $form_state)
     if (!$preference_data)
       {
         drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     /************************ end approve book details **************************/
@@ -892,10 +892,10 @@ function edit_chapter_title_form($form, $form_state)
     if (!$chapter_data)
       {
         drupal_set_message(t('Invalid chapter.'), 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
-    $form['#redirect'] = 'textbook-companion/code';
+    $form['#redirect'] = 'arduino-projects/code';
     $form['book_details']['book'] = array(
         '#type' => 'item',
         '#markup' => $preference_data->book,
@@ -949,8 +949,8 @@ function edit_chapter_title_form_submit($form, &$form_state)
     $proposal_data = $result->fetchObject();
     if (!$proposal_data)
       {
-        drupal_set_message("Please submit a " . l('proposal', 'textbook-companion/proposal') . ".", 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
+        drupal_goto('arduino-projects/code');
       }
     if ($proposal_data->proposal_status != 1 && $proposal_data->proposal_status != 4)
       {
@@ -958,22 +958,22 @@ function edit_chapter_title_form_submit($form, &$form_state)
         {
             case 0:
                 drupal_set_message(t('We have already received your proposal. We will get back to you soon.'), 'status');
-                drupal_goto('textbook-companion/code');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
             case 2:
                 drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'proposal') . '.'), 'error');
-                drupal_goto('textbook-companion/code');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
             case 3:
-                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'textbook-companion/proposal') . '.'), 'status');
-                drupal_goto('textbook-companion/code');
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
             default:
                 drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
-                drupal_goto('textbook-companion/code');
+                drupal_goto('arduino-projects/code');
                 return;
                 break;
         }
@@ -990,7 +990,7 @@ function edit_chapter_title_form_submit($form, &$form_state)
     if (!$preference_data)
       {
         drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
-        drupal_goto('textbook-companion/code');
+        drupal_goto('arduino-projects/code');
         return;
       }
     /************************ end approve book details **************************/

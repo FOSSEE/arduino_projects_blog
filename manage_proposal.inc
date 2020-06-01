@@ -555,7 +555,14 @@ function arduino_projects_blog_proposal_status_form($form, &$form_state)
 			'#title' => t('Approve')
 		);
 	} //$proposal_data->approval_status == 0
-	if ($proposal_data->approval_status == 1)
+
+        $query_step = db_select('arduino_projects_blog_step');
+        $query_step->fields('arduino_projects_blog_step');
+        $query_step->condition('proposal_id', $proposal_data->id);
+        $query_step->condition('approval_status', 1);
+        $query_step_count = $query_step->execute()->rowCount();
+        //$project_titles_data = $query_step->execute()->fetchObject();
+	if ($query_step_count == $proposal_data->no_of_steps_approved && $proposal_data->approval_status == 1)
 	{
 		$form['completed'] = array(
 			'#type' => 'checkbox',
@@ -627,14 +634,14 @@ function arduino_projects_blog_proposal_status_form_submit($form, &$form_state)
 			":expected_completion_date" => time()
 		);
 		$result = db_query($up_query, $args);
-		CreateReadmeFileOmPSSPProject($proposal_id);
+		//CreateReadmeFileOmPSSPProject($proposal_id);
 		if (!$result)
 		{
 			drupal_set_message('Error in update status', 'error');
 			return;
 		} //!$result
 		/* sending email */
-		$user_data = user_load($proposal_data->uid);
+		/*$user_data = user_load($proposal_data->uid);
 		$email_to = $user_data->mail;
 		$from = variable_get('arduino_projects_blog_from_email', '');
 		$bcc = $user->mail . ', ' . variable_get('arduino_projects_blog_bcc_emails', '');
@@ -651,7 +658,7 @@ function arduino_projects_blog_proposal_status_form_submit($form, &$form_state)
 			'Bcc' => $bcc
 		);
 		if (!drupal_mail('arduino_projects_blog', 'arduino_projects_blog_proposal_completed', $email_to, language_default(), $params, $from, TRUE))
-			drupal_set_message('Error sending email message.', 'error');
+			drupal_set_message('Error sending email message.', 'error');*/
 		drupal_set_message('Congratulations! proposal has been marked as completed. User has been notified of the completion.', 'status');
 	}
 		drupal_goto('arduino-projects/manage-proposal');

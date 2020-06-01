@@ -339,11 +339,13 @@ function arduino_projects_blog_my_proposal_edit_form_submit($form, &$form_state)
 	$v = $form_state['values'];
 	$query = "UPDATE arduino_projects_blog_proposal SET 
 				abstract=:abstract,
-				reference=:reference 
+				reference=:reference,
+				approval_status = :approval_status
 				WHERE id=:proposal_id";
 	$args = array(
 		':abstract' => $v['abstract'],
 		':reference' => $v['reference'],
+		':approval_status' => 0,
 		':proposal_id' => $proposal_id
 	);
 	$result = db_query($query, $args);
@@ -430,6 +432,7 @@ function arduino_projects_blog_my_proposal_edit_form_submit($form, &$form_state)
         }
      
 	drupal_set_message(t('Proposal Updated'), 'status');
+	drupal_goto('arduino-projects/my-proposals');
 }
 
 function arduino_projects_blog_my_proposal_view_form($form, &$form_state)

@@ -1,10 +1,223 @@
 <?php
+function introduction_approval()
+{
+    /* get a list of unapproved introductions */
+    $rows = array();
+    $query = db_select('arduino_projects_blog_proposal');
+    $query->fields('arduino_projects_blog_proposal');
+    $query->condition('approval_status', 1);
+    $query->condition('submitted_steps', 1);
+    $proposal_q = $query->execute();
+    while($proposal_data = $proposal_q->fetchObject()){
+    $intro_query = db_select('arduino_projects_blog_introduction_step');
+    $intro_query->fields('arduino_projects_blog_introduction_step');
+    $intro_query->condition('proposal_id', $proposal_data->id);
+    $intro_query->condition('is_submitted', 1);
+    $intro_query->condition('approval_status', 0);
+    $intro_query_result  = $intro_query->execute();
+    $intro_query_data = $intro_query_result->fetchObject();
+         $rows[] = array(
+            $proposal_data->project_title,
+            $proposal_data->contributor_name,
+            l('Edit', 'arduino-projects/code-approval/introduction/' . $intro_query_data->id)
+        );
+    }
+    
+    /* check if there are any pending proposals */
+    if (!$rows) {
+        drupal_set_message(t('There are no pending proposals'), 'status');
+        return '';
+    }
+    $header = array(
+        'Title of the Book',
+        'Contributor Name',
+        'Actions'
+    );
+    $output = theme('table', array(
+        'header' => $header,
+        'rows' => $rows
+    ));
+    return $output;
+}
+
+function introduction_approval_form($form, &$form_state)
+{
+    /* get a list of unapproved chapters */
+    $id = arg(3);
+    
+      /*  $query = db_select('arduino_projects_blog_proposal');
+        $query->fields('arduino_projects_blog_proposal');
+        $query->condition('id', $id);
+        $result = $query->execute();
+        $preference_data = $result->fetchObject();*/
+        //var_dump($preference_data);die;
+        /* get proposal data */
+        /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $preference_data->proposal_id);
+        $proposal_data = db_fetch_object($proposal_q);*/
+        $query = db_select('arduino_projects_blog_introduction_step');
+        $query->fields('arduino_projects_blog_introduction_step');
+        $query->condition('id', $id);
+        $result = $query->execute();
+        $intro_data = $result->fetchObject();
+        $query_proposal = db_select('arduino_projects_blog_proposal');
+        $query_proposal->fields('arduino_projects_blog_proposal');
+        $query_proposal->condition('id', $intro_data->proposal_id);
+        $proposal_data = $query_proposal->execute()->fetchObject();
+    $form['#tree'] = TRUE;
+    $form['contributor'] = array(
+        '#type' => 'item',
+        '#markup' => $proposal_data->contributor_name,
+        '#title' => t('Contributor Name')
+    );
+    $form['book_details']['book'] = array(
+        '#type' => 'item',
+        '#markup' => $proposal_data->project_title,
+        '#title' => t('Title of the Book')
+    );
+    
+    /* get example data */
+    /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d AND approval_status = 0", $chapter_id);*/
+    
+        /*$form['example_details'][$example_data->id] = array(
+            '#type' => 'fieldset',
+            '#collapsible' => FALSE,
+            '#collapsed' => TRUE
+        );*/
+        $form['description'] = array(
+            '#type' => 'item',
+            '#markup' => $intro_data->description,
+            '#title' => t('Description')
+        );
+        $form['video'] =array(
+            '#type' => 'item',
+            '#markup' => convertLinkToEmbed($intro_data->demo_video, 450, 250),
+            '#title' => t('Demo Video')
+        );
+        /*$form['download_file'] = array(
+            '#type' => 'item',
+            '#title' => t('Click to download the file with list of codable examples'),
+            '#markup' => l('Download Example', 'arduino-projects/download/codable-example/' . $example_data->proposal_id)
+        );*/
+        $form['intro_status'] = array(
+            '#type' => 'radios',
+            '#options' => array(
+                'Approved',
+                'Dis-approved'
+            )
+        );
+        $form['message'] = array(
+            '#type' => 'textarea',
+            '#size' => 2500,
+            '#maxlength' => 2500,
+            '#title' => t('Reason for dis-approval')
+        );
+        $form['proposal_id'] = array(
+            '#type' => 'hidden',
+            '#value' => $proposal_data->id
+        );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit')
+    );
+    $form['back_to_list'] = array(
+        '#type' => 'item',
+        '#markup' => l('Back to Code Approval List', 'arduino-projects/code-approval')
+    );
+    return $form;
+}
+
+function introduction_approval_form_submit($form, &$form_state){
+    global $user;
+    $proposal_id = $form_state['values']['proposal_id'];
+    $query = db_select('arduino_projects_blog_introduction_step');
+        $query->fields('arduino_projects_blog_introduction_step');
+        $query->condition('proposal_id', $proposal_id);
+        $result = $query->execute();
+        $intro_data = $result->fetchObject();
+     $query = db_select('arduino_projects_blog_proposal');
+        $query->fields('arduino_projects_blog_proposal');
+        $query->condition('id', $intro_data->proposal_id);
+        $result = $query->execute();
+        $proposal_data = $result->fetchObject();
+    $user_data = user_load($proposal_data->uid);
+    $ex_data = $form_state['values'];
+    if ($ex_data['intro_status'] == "0") {
+            /*db_query("UPDATE {textbook_companion_example} SET approval_status = 1, approver_uid = %d, approval_date = %d WHERE id = %d", $user->uid, time(), $ex_data['example_id']);*/
+            $query = db_update('arduino_projects_blog_introduction_step');
+            $query->fields(array(
+                'approval_status' => 1,
+            ));
+            $query->condition('proposal_id', $ex_data['proposal_id']);
+            $num_updated = $query->execute();
+            /* sending email */
+            $email_to = $user_data->mail;
+            $from = variable_get('textbook_companion_from_email', '');
+            $bcc = variable_get('textbook_companion_emails', '');
+            $cc = variable_get('textbook_companion_cc_emails', '');
+            $param['codable_example_approved']['proposal_id'] = $ex_data['proposal_id'];
+            $param['codable_example_approved']['user_id'] = $user_data->uid;
+            $param['codable_example_approved']['headers'] = array(
+                'From' => $from,
+                'MIME-Version' => '1.0',
+                'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+                'Content-Transfer-Encoding' => '8Bit',
+                'X-Mailer' => 'Drupal',
+                'Cc' => $cc,
+                'Bcc' => $bcc
+            );
+            if (!drupal_mail('textbook_companion', 'intro_approved', $email_to, language_default(), $param, $from, TRUE))
+                drupal_set_message('Error sending email message.', 'error');
+            drupal_set_message('Introduction approved.', 'status');
+            drupal_goto('arduino-projects/code-approval/');
+        } else if ($ex_data['intro_status'] == "1") {
+            
+                /* sending email */
+                $query = db_update('arduino_projects_blog_introduction_step');
+            $query->fields(array(
+                'approval_status' => 0,
+                'disapproval_message' => $ex_data['message']
+            ));
+            $query->condition('proposal_id', $ex_data['proposal_id']);
+            $num_updated = $query->execute();
+             $pro_query = db_update('arduino_projects_blog_proposal');
+            $pro_query->fields(array(
+                'submitted_steps' => 0
+                ));
+            $pro_query->condition('id', $ex_data['proposal_id']);
+            $pro_updated = $pro_query->execute();
+                $email_to = $user_data->mail;
+                $from = variable_get('textbook_companion_from_email', '');
+                $bcc = variable_get('textbook_companion_emails', '');
+                $cc = variable_get('textbook_companion_cc_emails', '');
+                $param['codable_example_disapproved']['proposal_id'] = $ex_data['proposal_id'];
+                $param['codable_example_disapproved']['user_id'] = $user_data->uid;
+                $param['codable_example_disapproved']['message'] = $ex_data['message'];
+                $param['codable_example_disapproved']['headers'] = array(
+                    'From' => $from,
+                    'MIME-Version' => '1.0',
+                    'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+                    'Content-Transfer-Encoding' => '8Bit',
+                    'X-Mailer' => 'Drupal',
+                    'Cc' => $cc,
+                    'Bcc' => $bcc
+                );
+                //if (!drupal_mail('textbook_companion', 'intro_disapproved', $email_to, language_default(), $param, $from, TRUE))
+                  //  drupal_set_message('Error sending email message.', 'error');
+                drupal_set_message('Introduction disapproved and user has been notified.', 'status');
+                drupal_goto('arduino-projects/code-approval');
+            }
+            else {
+                drupal_set_message('Error in updating the status. Please contact administrator.', 'error');
+            }
+}
+
 /********************************* BULK APPROVAL ******************************/
 function step_approval_form($form, &$form_state)
 {
     $options_first = _step_list_of_projects();
     $options_two = _ajax_bulk_get_step_list();
     $selected = isset($form_state['values']['project_title']) ? $form_state['values']['project_title'] : key($options_first);
+
     $select_two = isset($form_state['values']['step']) ? $form_state['values']['step'] : key($options_two);
     $form['project_title'] = array(
         '#type' => 'select',
@@ -197,8 +410,9 @@ function step_approval_form_submit($form, &$form_state)
                     $query = db_select('arduino_projects_blog_step');
                     $query->fields('arduino_projects_blog_step');
                     $query->condition('number', $form_state['values']['step']);
+                    $query->condition('proposal_id', $user_info->id);
                     $result = $query->execute();
-                    $step_data = $result->fetchObject();
+                    while($step_data = $result->fetchObject()){
                     $query = db_select('arduino_projects_blog_step_information');
                     $query->fields('arduino_projects_blog_step_information');
                     $query->condition('step_id', $step_data->id);
@@ -223,6 +437,7 @@ function step_approval_form_submit($form, &$form_state)
                             ));
                     } //$abstract_data = $abstracts_q->fetchObject()
                     drupal_set_message(t('Approved step no. ' . $step_data->number), 'status');
+                }
                     // email 
                     /*$email_subject = t('[!site_name][power system simulation Project] Your uploaded power system simulation project have been approved', array(
                         '!site_name' => variable_get('site_name', '')
@@ -580,7 +795,8 @@ function ajax_bulk_step_list_callback($form, $form_state)
 function ajax_bulk_step_details_list_callback($form, $form_state)
 {
     $commands = array();
-    $step_default_value = $form_state['values']['step'];
+    $step_default_value = $form_state['values']['project_title'];
+    //var_dump($step_default_value);die;
     if ($step_default_value != 0)
     {
         $commands[] = ajax_command_html('#ajax_selected_step', _step_details($step_default_value));
@@ -628,7 +844,7 @@ function ajax_bulk_example_files_callback($form, $form_state)
                         break;
                 }
                 $example_files_rows[] = array(
-                    l($example_list_data->filename, 'textbook-companion/download/file/' . $example_list_data->id),
+                    l($example_list_data->filename, 'arduino-projects/download/file/' . $example_list_data->id),
                     $example_file_type
                 );
             }
@@ -668,8 +884,8 @@ function ajax_bulk_example_files_callback($form, $form_state)
             $form['example_files']['#title'] = 'List of example files';
             $form['example_files']['#markup'] = $example_files;
             $commands[] = ajax_command_replace('#ajax_example_files_list', drupal_render($form['example_files']));
-            $commands[] = ajax_command_html('#ajax_download_selected_example', l('Download Example', 'textbook-companion/download/example/' . $example_list_default_value));
-            $commands[] = ajax_command_html('#ajax_edit_selected_example', l('Edit Example', 'textbook-companion/code-approval/editcode/' . $example_list_default_value));
+            $commands[] = ajax_command_html('#ajax_download_selected_example', l('Download Example', 'arduino-projects/download/example/' . $example_list_default_value));
+            $commands[] = ajax_command_html('#ajax_edit_selected_example', l('Edit Example', 'arduino-projects/code-approval/editcode/' . $example_list_default_value));
             $form['example_actions']['#options'] = _bulk_list_example_actions();
             $commands[] = ajax_command_replace('#ajax_selected_example_action', drupal_render($form['example_actions']));
             //$commands[] = ajax_command_html('#ajax_selected_example_action', '' );
@@ -704,15 +920,17 @@ function ajax_bulk_chapter_actions_callback()
 function _step_details($step_id)
 {
     $return_html = "";
-    $query = db_select('arduino_projects_blog_step');
-    $query->fields('arduino_projects_blog_step');
-    $query->condition('number', $step_id);
-    $step_data = $query->execute()->fetchObject();
-    //var_dump($step_data);die;
     $query = db_select('arduino_projects_blog_proposal');
     $query->fields('arduino_projects_blog_proposal');
-    $query->condition('id', $step_data->proposal_id);
+    $query->condition('id', $step_id);
     $proposal_data = $query->execute()->fetchObject();
+    $query = db_select('arduino_projects_blog_step');
+    $query->fields('arduino_projects_blog_step');
+    $query->condition('proposal_id', $proposal_data->id);
+    $query->condition('approval_status', 0);
+    $step_data = $query->execute()->fetchObject();
+    //var_dump($step_data);die;
+    
     $query = db_select('arduino_projects_blog_step_information');
     $query->fields('arduino_projects_blog_step_information');
     $query->condition('step_id', $step_data->id);
