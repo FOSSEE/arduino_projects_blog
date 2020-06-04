@@ -432,6 +432,24 @@ function arduino_projects_blog_my_proposal_edit_form_submit($form, &$form_state)
         }
      
 	drupal_set_message(t('Proposal Updated'), 'status');
+	$user_data = user_load($proposal_data->uid);
+		$email_to = $user_data->mail;
+		$from = variable_get('arduino_projects_blog_from_email', '');
+		$bcc = $user->mail . ', ' . variable_get('arduino_projects_blog_bcc_emails', '');
+		$cc = variable_get('arduino_projects_blog_cc_emails', '');
+		$params['arduino_projects_blog_proposal_resubmit_ack']['proposal_id'] = $proposal_data->id;
+		$params['arduino_projects_blog_proposal_resubmit_ack']['user_id'] = $proposal_data->uid;
+		$params['arduino_projects_blog_proposal_resubmit_ack']['headers'] = array(
+			'From' => $from,
+			'MIME-Version' => '1.0',
+			'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+			'Content-Transfer-Encoding' => '8Bit',
+			'X-Mailer' => 'Drupal',
+			'Cc' => $cc,
+			'Bcc' => $bcc
+		);
+		if (!drupal_mail('arduino_projects_blog', 'arduino_projects_blog_proposal_resubmit_ack', $email_to, language_default(), $params, $from, TRUE))
+			drupal_set_message('Error sending email message.', 'error');
 	drupal_goto('arduino-projects/my-proposals');
 }
 

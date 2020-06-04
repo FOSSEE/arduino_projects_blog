@@ -28,7 +28,7 @@ function upload_examples_form($form, &$form_state, $no_js_use = FALSE)
         {
             case 0:
                 drupal_set_message(t('We have already received your proposal. We will get back to you soon.'), 'status');
-                drupal_goto('');
+                drupal_goto('arduino-projects');
                 return;
                 break;
             case 2:
@@ -43,11 +43,11 @@ function upload_examples_form($form, &$form_state, $no_js_use = FALSE)
                 break;
             case 5:
                   drupal_set_message(t('You have submitted your all codes.'), 'status');
-                  drupal_goto('');
+                  drupal_goto('arduino-projects');
                   return;
             default:
                 drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
-                drupal_goto('');
+                drupal_goto('arduino-projects');
                 return;
                 break;
         }

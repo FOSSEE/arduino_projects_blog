@@ -33,107 +33,12 @@ Full Name: ' . $proposal_data->contributor_name . '
 Email: ' . $user_data->mail . '
 University/Institute: ' . $proposal_data->university . '
 City: ' . $proposal_data->city . '
-How did you hear about us:' . $proposal_data->how_did_you_hear_about_us . '
+How did you hear about us: ' . $proposal_data->how_did_you_hear_about_us . '
 Project Title: ' . $proposal_data->project_title . '
 Abstract: ' . $proposal_data->abstract . '
 References: ' . $proposal_data->reference . '
 
 Your proposal is under review. You will be notified via email about the approval/disapproval within ten working days.
-
-Best Wishes,
-
-!site_name Team,
-FOSSEE, IIT Bombay', array(
-					'!site_name' => variable_get('site_name', ''),
-					'!user_name' => $user_data->name
-				), array(
-					'language' => $language->language
-				))
-			);
-			break;
-		case 'arduino_projects_blog_proposal_resubmit':
-			/* initializing data */
-			$query = db_select('arduino_projects_blog_proposal');
-			$query->fields('arduino_projects_blog_proposal');
-			$query->condition('id', $params['arduino_projects_blog_proposal_resubmit']['proposal_id']);
-			$query->range(0, 1);
-			$proposal_data = $query->execute()->fetchObject();
-			$user_data = user_load($params['arduino_projects_blog_proposal_resubmit']['user_id']);
-			$message['headers'] = $params['arduino_projects_blog_proposal_resubmit']['headers'];
-			$message['subject'] = t('[!site_name][Arduino Project] Your Arduino Project proposal has been marked for resubmission', array(
-				'!site_name' => variable_get('site_name', '')
-			), array(
-				'language' => $language->language
-			));
-			$message['body'] = array(
-				'body' => t('
-Dear ' . $proposal_data->contributor_name . ',
-
-We like to inform you that your Open Source Hardware Project proposal with the following details
-
-Full Name: ' . $proposal_data->contributor_name . '
-Email: ' . $user_data->mail . '
-University/Institute: ' . $proposal_data->university . '
-City: ' . $proposal_data->city . '
-How did you hear about us:' . $proposal_data->how_did_you_hear_about_us . '
-Project Title: ' . $proposal_data->project_title . '
-Abstract: ' . $proposal_data->abstract . '
-References: ' . $proposal_data->reference . '
-
-must be resubmitted after making changes considering the following reviewer’s comments.
-
-Comment: ' . $proposal_data->resubmit_comment . '
-
-Failing to do so within 2 weeks from today, will automatically lead to disapproval of the proposal. Please note that once you resubmit the proposal, it will be reviewed again.
-
-Thank you for participating in the Open Source Hardware Project and looking forward to your response.
-
-
-Best Wishes,
-
-!site_name Team,
-FOSSEE, IIT Bombay', array(
-					'!site_name' => variable_get('site_name', ''),
-					'!user_name' => $user_data->name
-				), array(
-					'language' => $language->language
-				))
-			);
-			break;
-		case 'arduino_projects_blog_proposal_disapproved':
-			/* initializing data */
-			$query = db_select('arduino_projects_blog_proposal');
-			$query->fields('arduino_projects_blog_proposal');
-			$query->condition('id', $params['arduino_projects_blog_proposal_disapproved']['proposal_id']);
-			$query->range(0, 1);
-			$proposal_data = $query->execute()->fetchObject();
-			$user_data = user_load($params['arduino_projects_blog_proposal_disapproved']['user_id']);
-			$message['headers'] = $params['arduino_projects_blog_proposal_disapproved']['headers'];
-			$message['subject'] = t('[!site_name][Arduino Project] Your Arduino Project Project proposal has been disapproved', array(
-				'!site_name' => variable_get('site_name', '')
-			), array(
-				'language' => $language->language
-			));
-			$message['body'] = array(
-				'body' => t('
-Dear ' . $proposal_data->contributor_name . ',
-
-We regret to inform you that your Arduino Project proposal, with following details, has been disapproved.
-
-Full Name: ' . $proposal_data->contributor_name . '
-Email: ' . $user_data->mail . '
-University/Institute: ' . $proposal_data->university . '
-City: ' . $proposal_data->city . '
-Project Title: ' . $proposal_data->project_title . '
-Abstract: ' . $proposal_data->abstract . '
-
-Reason(s) / Feedback: ' . $proposal_data->dissapproval_reason . '
-
-Please note that any files that were uploaded along with the proposal form will be deleted from all our database(s).
-
-Thank you for participating in the  Open Source Hardware Project. You are welcome to submit a new proposal.
-
-
 
 Best Wishes,
 
@@ -156,7 +61,7 @@ FOSSEE, IIT Bombay', array(
 			$user_data = user_load($params['arduino_projects_blog_proposal_approved']['user_id']);
 			$url = 'https://om.fossee.in/powersystems/pssp/coding-guidelines';
 			$message['headers'] = $params['arduino_projects_blog_proposal_approved']['headers'];
-			$message['subject'] = t('[!site_name][Power Simulation Simulation Project] Your Power Simulation Simulation Project proposal has been approved', array(
+			$message['subject'] = t('[!site_name][Arduino Projects] Proposal for OSHW project approved', array(
 				'!site_name' => variable_get('site_name', '')
 			), array(
 				'language' => $language->language
@@ -165,19 +70,159 @@ FOSSEE, IIT Bombay', array(
 				'body' => t('
 Dear ' . $proposal_data->contributor_name . ',
 
-Congratulations! Your proposal for Arduino Project with the following details is approved.
+Congratulations! Your proposal for the Open Source Hardware Project with the following details, is approved.
+
 
 Full Name: ' . $proposal_data->contributor_name . '
 Email: ' . $user_data->mail . '
 University/Institute: ' . $proposal_data->university . '
 City: ' . $proposal_data->city . '
-
+How did you hear about us: ' . $proposal_data->how_did_you_hear_about_us . '
 Project Title: ' . $proposal_data->project_title . '
 Abstract: ' . $proposal_data->abstract . '
+References: ' . $proposal_data->reference . '
 
+Please ensure that ALL the guidelines for submissions are strictly followed.
 
-Please ensure that ALL the guidelines for coding at https://om.fossee.in/powersystems/pssp/coding-guidelines are strictly followed. Refer https://om.fossee.in/powersystems/pssp/internship for the further procedure for submission of the project. Kindly ensure that the completed model and abstract are submitted within 1 month. 
+Best Wishes,
 
+!site_name Team,
+FOSSEE, IIT Bombay', array(
+					'!site_name' => variable_get('site_name', ''),
+					'!user_name' => $user_data->name
+				), array(
+					'language' => $language->language
+				))
+			);
+			break;
+		case 'arduino_projects_blog_proposal_resubmit':
+			/* initializing data */
+			$query = db_select('arduino_projects_blog_proposal');
+			$query->fields('arduino_projects_blog_proposal');
+			$query->condition('id', $params['arduino_projects_blog_proposal_resubmit']['proposal_id']);
+			$query->range(0, 1);
+			$proposal_data = $query->execute()->fetchObject();
+			$user_data = user_load($params['arduino_projects_blog_proposal_resubmit']['user_id']);
+			$message['headers'] = $params['arduino_projects_blog_proposal_resubmit']['headers'];
+			$message['subject'] = t('[!site_name][Arduino Projects] Your OSHW proposal has been marked for resubmission', array(
+				'!site_name' => variable_get('site_name', '')
+			), array(
+				'language' => $language->language
+			));
+			$url = l('here', '/arduino-projects/my-proposals');
+			$message['body'] = array(
+				'body' => t('
+Dear ' . $proposal_data->contributor_name . ',
+
+We like to inform you that your Open Source Hardware Project proposal with the following details
+
+Full Name: ' . $proposal_data->contributor_name . '
+Email: ' . $user_data->mail . '
+University/Institute: ' . $proposal_data->university . '
+City: ' . $proposal_data->city . '
+How did you hear about us: ' . $proposal_data->how_did_you_hear_about_us . '
+Project Title: ' . $proposal_data->project_title . '
+Abstract: ' . $proposal_data->abstract . '
+References: ' . $proposal_data->reference . '
+
+must be resubmitted after making changes considering the following reviewer’s comments.
+
+Comment: ' . $proposal_data->resubmit_comment . '
+
+Failing to do so within 2 weeks from today, will automatically lead to disapproval of the proposal. Please note that once you resubmit the proposal, it will be reviewed again.
+
+You may edit and resubmit you proposal' . $url . '.
+
+Thank you for participating in the Open Source Hardware Project and looking forward to your response.
+
+Best Wishes,
+
+!site_name Team,
+FOSSEE, IIT Bombay', array(
+					'!site_name' => variable_get('site_name', ''),
+					'!user_name' => $user_data->name
+				), array(
+					'language' => $language->language
+				))
+			);
+			break;
+		case 'arduino_projects_blog_proposal_disapproved':
+			/* initializing data */
+			$query = db_select('arduino_projects_blog_proposal');
+			$query->fields('arduino_projects_blog_proposal');
+			$query->condition('id', $params['arduino_projects_blog_proposal_disapproved']['proposal_id']);
+			$query->range(0, 1);
+			$proposal_data = $query->execute()->fetchObject();
+			$user_data = user_load($params['arduino_projects_blog_proposal_disapproved']['user_id']);
+			$message['headers'] = $params['arduino_projects_blog_proposal_disapproved']['headers'];
+			$message['subject'] = t('[!site_name][Arduino Projects] Your OSHW proposal has been disapproved', array(
+				'!site_name' => variable_get('site_name', '')
+			), array(
+				'language' => $language->language
+			));
+			$message['body'] = array(
+				'body' => t('
+Dear ' . $proposal_data->contributor_name . ',
+
+We regret to inform you that your Open Source Hardware Project proposal with the following details have been disapproved.
+
+Full Name: ' . $proposal_data->contributor_name . '
+Email: ' . $user_data->mail . '
+University/Institute: ' . $proposal_data->university . '
+City: ' . $proposal_data->city . '
+How did you hear about us: ' . $proposal_data->how_did_you_hear_about_us . '
+Project Title: ' . $proposal_data->project_title . '
+Abstract: ' . $proposal_data->abstract . '
+References: ' . $proposal_data->reference . '
+
+Reason(s) / Feedback: ' . $proposal_data->dissapproval_reason . '
+
+Please note that any files that were uploaded along with the proposal form will be deleted from all our database(s).
+
+Thank you for participating in the  Open Source Hardware Project. You are welcome to submit a new proposal.
+
+Best Wishes,
+
+!site_name Team,
+FOSSEE, IIT Bombay', array(
+					'!site_name' => variable_get('site_name', ''),
+					'!user_name' => $user_data->name
+				), array(
+					'language' => $language->language
+				))
+			);
+			break;
+		case 'arduino_projects_blog_proposal_resubmit_ack':
+			/* initializing data */
+			$query = db_select('arduino_projects_blog_proposal');
+			$query->fields('arduino_projects_blog_proposal');
+			$query->condition('id', $params['arduino_projects_blog_proposal_resubmit_ack']['proposal_id']);
+			$query->range(0, 1);
+			$proposal_data = $query->execute()->fetchObject();
+			$user_data = user_load($params['arduino_projects_blog_proposal_resubmit_ack']['user_id']);
+			$message['headers'] = $params['arduino_projects_blog_proposal_resubmit_ack']['headers'];
+			$message['subject'] = t('[!site_name][Arduino Projects] Proposal Resubmission for OSHW project is successful', array(
+				'!site_name' => variable_get('site_name', '')
+			), array(
+				'language' => $language->language
+			));
+			$url = l('here', '/arduino-projects/my-proposals');
+			$message['body'] = array(
+				'body' => t('
+Dear ' . $proposal_data->contributor_name . ',
+
+Thank you for your re-submission. We have received your resubmitted proposal for the Open Source Hardware Project with the following details:
+
+Full Name: ' . $proposal_data->contributor_name . '
+Email: ' . $user_data->mail . '
+University/Institute: ' . $proposal_data->university . '
+City: ' . $proposal_data->city . '
+How did you hear about us: ' . $proposal_data->how_did_you_hear_about_us . '
+Project Title: ' . $proposal_data->project_title . '
+Abstract: ' . $proposal_data->abstract . '
+References: ' . $proposal_data->reference . '
+
+Your proposal is under review. You will receive an email as soon as it has been reviewed. 
 
 Best Wishes,
 

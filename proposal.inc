@@ -24,7 +24,7 @@ function arduino_projects_blog_proposal_form($form, &$form_state, $no_js_use = F
 	{
 		$msg = drupal_set_message(t('It is mandatory to ' . l('login', 'user') . ' on this website to access the proposal form. If you are new user please create a new account first.'), 'error');
 		//drupal_goto('/pssp');
-		drupal_goto('user');
+		drupal_goto('user/login', array('query' => drupal_get_destination()));
 		return $msg;
 	} //$user->uid == 0
 	$query = db_select('arduino_projects_blog_proposal');
@@ -39,7 +39,7 @@ function arduino_projects_blog_proposal_form($form, &$form_state, $no_js_use = F
 		if ($proposal_data->approval_status == 0 || $proposal_data->approval_status == 1 || $proposal_data->approval_status == 2)
 		{
 			drupal_set_message(t('We have already received your proposal.'), 'status');
-			drupal_goto('');
+			drupal_goto('arduino-projects');
 			return;
 		} //$proposal_data->approval_status == 0 || $proposal_data->approval_status == 1
 	} //$proposal_data
@@ -512,9 +512,9 @@ function arduino_projects_blog_proposal_form_submit($form, &$form_state)
 	$args = array(
 		":uid" => $user->uid,
 		":approver_uid" => 0,
-		":contributor_name" => _df_sentence_case(trim($v['contributor_name'])),
+		":contributor_name" => trim($v['contributor_name']),
 		":contact_no" => $v['contributor_contact_no'],
-		":university" => _df_sentence_case($v['university']),
+		":university" => $v['university'],
 		":city" => $v['city'],
 		":pincode" => $v['pincode'],
 		":state" => $v['all_state'],
@@ -609,7 +609,7 @@ function arduino_projects_blog_proposal_form_submit($form, &$form_state)
 	if (!drupal_mail('arduino_projects_blog', 'arduino_projects_blog_proposal_received', $email_to, user_preferred_language($user), $params, $form, TRUE))
 		drupal_set_message('Error sending email message.', 'error');
 	drupal_set_message(t('We have received your proposal. We will get back to you soon.'), 'status');
-	drupal_goto('');
+	drupal_goto('arduino-projects/my-proposals');
 	
 }
 
@@ -617,6 +617,13 @@ function arduino_projects_blog_my_proposal()
 {
 	global $user;
 	/* get pending proposals to be approved */
+	if ($user->uid == 0)
+	{
+		$msg = drupal_set_message(t('It is mandatory to login on this website to view your proposals. If you are new user please create a new account first.'), 'error');
+		//drupal_goto('/pssp');
+		drupal_goto('user/login', array('query' => drupal_get_destination()));
+		return $msg;
+	}
 	$my_proposal_rows = array();
 	$query = db_select('arduino_projects_blog_proposal');
 	$query->fields('arduino_projects_blog_proposal');
