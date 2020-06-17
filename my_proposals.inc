@@ -571,11 +571,25 @@ function arduino_projects_blog_my_proposal_view_form($form, &$form_state)
 		'#title' => t('Expected Completion date'),
 		'#markup' => date('d-m-Y', $proposal_data->expected_date_of_completion)
 	);
+	if($proposal_data->approval_status == 2){
 	if($proposal_data->resubmit_comment){
 	$form['resubmit_comment'] = array(
 		'#type' => 'item',
 		'#title' => t('Comment from the Reviewer'),
 		'#markup' => $proposal_data->resubmit_comment
+	);
+	}
+}
+	else if($proposal_data->approval_status == 4){
+		$form['status'] = array(
+			'#type' => 'item',
+			'#title' => t('Status'),
+			'#markup' => t('Dis-approved')
+		);
+		$form['disapproval_reason'] = array(
+		'#type' => 'item',
+		'#title' => t('Disapproval Reason'),
+		'#markup' => $proposal_data->dissapproval_reason
 	);
 	}
 	$form['cancel'] = array(

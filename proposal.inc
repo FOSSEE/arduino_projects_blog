@@ -636,7 +636,7 @@ function arduino_projects_blog_my_proposal()
 		if($my_proposals_data->approval_status == 2){
 			$action = l('Edit', 'arduino-projects/my-proposals/edit/' . $my_proposals_data->id);
 			}
-		else if($my_proposals_data->approval_status == 1 or $my_proposals_data->approval_status == 3){
+		else if($my_proposals_data->approval_status == 1 or $my_proposals_data->approval_status == 3 or $my_proposals_data->approval_status == 4){
 			$action =	l('View', 'arduino-projects/my-proposals/view/' . $my_proposals_data->id);
 			}
 		else if($my_proposals_data->approval_status == 0){
