@@ -13,16 +13,17 @@ function list_steps()
     $query->range(0, 1);
     $result = $query->execute();
     $proposal_data = $result->fetchObject();
+    if (!$proposal_data)
+      {
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
+        drupal_goto('arduino-projects');
+      }
     $intro_query = db_select('arduino_projects_blog_introduction_step');
     $intro_query->fields('arduino_projects_blog_introduction_step');
     $intro_query->condition('proposal_id', $proposal_data->id);
     $intro_query_result  = $intro_query->execute();
     $intro_query_data = $intro_query_result->fetchObject();
-    if (!$proposal_data)
-      {
-        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
-        drupal_goto('');
-      }
+    
     if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4)
       {
         switch ($proposal_data->approval_status)
@@ -136,8 +137,15 @@ function list_steps()
         'header' => $step_header,
         'rows' => $step_rows
     ));
+    $return_html .= l('Upload Project Design files', 'arduino-projects/code/upload-design-files') . '<br />';
     $step_count = $step_q->rowCount();
-    if($step_count >= 5){
+    $df_query = db_select('arduino_projects_blog_project_files');
+    $df_query->fields('arduino_projects_blog_project_files');
+    $df_query->condition('proposal_id' , $proposal_data->id);
+    $df_query_q = $df_query->execute();
+    $df_query_data = $df_query_q->fetchObject();
+
+    if($step_count >= 5 && $df_query_data){
      $submited_all_steps = drupal_get_form("all_steps_submitted_check_form",$proposal_data->id);
     $return_html .= drupal_render($submited_all_steps);
     }
@@ -370,7 +378,229 @@ function update_introduction_form($form, &$form_state)
   }
 
 
+  /*****************************Upload Project Design files **********************************/
 
+function upload_design_files()
+  {
+    return drupal_get_form('upload_design_files_form');
+  }
+function upload_design_files_form($form, &$form_state)
+  {
+    global $user;
+    /************************ start approve book details ************************/
+    /*$proposal_q = db_query("SELECT * FROM {arduino_projects_blog_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+    $proposal_data = db_fetch_object($proposal_q);*/
+    $query = db_select('arduino_projects_blog_proposal');
+    $query->fields('arduino_projects_blog_proposal');
+    $query->condition('uid', $user->uid);
+    $query->orderBy('id', 'DESC');
+    $query->range(0, 1);
+    $result = $query->execute();
+    $proposal_data = $result->fetchObject();
+    if (!$proposal_data)
+      {
+        drupal_set_message("Please submit a " . l('proposal', 'arduino-projects/proposal') . ".", 'error');
+        drupal_goto('');
+      }
+    if ($proposal_data->approval_status != 1 && $proposal_data->approval_status != 4)
+      {
+        switch ($proposal_data->approval_status)
+        {
+            case 0:
+                drupal_set_message(t('We have already received your proposal. We will get back to you soon.'), 'status');
+                drupal_goto('');
+                return;
+                break;
+            case 2:
+                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'error');
+                drupal_goto('');
+                return;
+                break;
+            case 3:
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'arduino-projects/proposal') . '.'), 'status');
+                drupal_goto('');
+                return;
+                break;
+            case 5:
+                drupal_set_message(t('You have submitted your all codes.'), 'status');
+                drupal_goto('');
+                return;
+                break;
+            default:
+                drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
+                drupal_goto('');
+                return;
+                break;
+        }
+      }
+      $query = db_select('arduino_projects_blog_project_files');
+      $query->fields('arduino_projects_blog_project_files');
+      $query->condition('proposal_id', $proposal_data->id);
+      $query->condition('approval_status', 0);
+      $query_q = $query->execute();
+      $query_data = $query_q->fetchObject();
+    /*$preference_q = db_query("SELECT * FROM {arduino_projects_blog_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+    $proposal_data = db_fetch_object($preference_q);*/
+    /*$query = db_select('arduino_projects_blog_preference');
+    $query->fields('arduino_projects_blog_preference');
+    $query->condition('proposal_id', $proposal_data->id);
+    $query->condition('approval_status', 1);
+    $query->range(0, 1);
+    $result = $query->execute();
+    $proposal_data = $result->fetchObject();
+    if (!$proposal_data)
+      {
+        drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
+        drupal_goto('');
+        return;
+      }*/
+      if($query_data){
+        $form['#attributes'] = array(
+        'enctype' => "multipart/form-data"
+    );
+    $form['proposal_id'] =array(
+        '#type' => 'hidden',
+        '#default_value' => $proposal_data->id
+    );
+    $form['title'] = array(
+        '#type' => 'item',
+        '#markup' => t('Introduction'),
+        '#title' => t('Title'),
+        '#default_value' => t('Introduction')
+    );
+    $form['project_design_files']  = array(
+        '#type' => 'file',
+        '#title' => t('Upload the project file'),
+        '#description' => t('<span style="color:red;">Current File :</span> ' . $query_data->filename . '<br />Separate filenames with underscore. No spaces or any special characters allowed in filename.') . '<br />' . t('<span style="color:red;">Allowed file extensions : ') . variable_get('project_design_files_extensions', '') . '</span>',
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit')
+    );
+    $form['cancel'] = array(
+        '#type' => 'item',
+        '#markup' => l('Cancel', 'arduino-projects/code')
+    );
+      }
+    else{
+        $form['#attributes'] = array(
+        'enctype' => "multipart/form-data"
+    );
+    $form['proposal_id'] =array(
+        '#type' => 'hidden',
+        '#default_value' => $proposal_data->id
+    );
+    
+    $form['project_design_files']  = array(
+        '#type' => 'file',
+        '#title' => t('Upload the project file'),
+        '#description' => t('Separate filenames with underscore. No spaces or any special characters allowed in filename.') . '<br />' . t('<span style="color:red;">Allowed file extensions : ') . variable_get('project_design_files_extensions', '') . '</span>',
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit')
+    );
+    $form['cancel'] = array(
+        '#type' => 'item',
+        '#markup' => l('Cancel', 'arduino-projects/code')
+    );
+}
+    return $form;
+  }
+
+function upload_design_files_form_submit($form, &$form_state){
+    global $user;
+    $v = $form_state['values'];
+    $root_path = arduino_projects_blog_files_path();
+    $proposal_data = arduino_projects_blog_get_proposal();
+    if (!$proposal_data) {
+        drupal_goto('arduino-projects/code');
+        return;
+    } //!$proposal_data
+    $proposal_id = $proposal_data->id;
+    $proposal_directory = $proposal_data->directory_name;
+    $dest_path = $proposal_directory . '/project_files/design_files/';
+    //var_dump($root_path . $dest_path);die;
+    /*if (!is_dir($root_path . $dest_path)){   
+        if(!mkdir($root_path . $dest_path))
+        {
+        drupal_set_message(t('You cannot upload your code. Error in creating directory'), 'error');
+        }
+     }
+    *///$dest_path .= '/';
+     foreach ($_FILES['files']['name'] as $file_form_name => $file_name)
+      {
+        if ($file_name)
+          {
+            /* checking file type */
+
+            //$file_type = 'S';
+                    //$dest_path = $filepath . 'images/';
+                    //var_dump($root_path . $dest_path);die;
+                    if (!is_dir($root_path . $dest_path))
+                        mkdir($root_path . $dest_path);
+                    if (file_exists($root_path . $dest_path . $_FILES['files']['name'][$file_form_name]))
+                      {
+                        drupal_set_message(t("Error uploading file. File !filename already exists.", array(
+                            '!filename' => $_FILES['files']['name'][$file_form_name]
+                        )), 'error');
+                        return;
+                      }
+                    /* uploading file */
+                    else if (move_uploaded_file($_FILES['files']['tmp_name'][$file_form_name], $root_path . $dest_path . $_FILES['files']['name'][$file_form_name]))
+                      {
+                        $query= "SELECT * FROM arduino_projects_blog_project_files WHERE proposal_id = :proposal_id";
+                        $query_args = array(
+                            ":proposal_id" => $proposal_id,
+                        );
+                        $query_result = db_query($query, $query_args)->fetchObject();
+                        if (!$query_result) {
+                        $query = "INSERT INTO {arduino_projects_blog_project_files} (uid, proposal_id, filename, filepath,filemime, filesize, filetype, creation_date)
+                  VALUES (:uid, :proposal_id, :filename ,:filepath,:filemime, :filesize, :filetype, :creation_date)";
+                        $args = array(
+                            ":uid" => $user->uid,
+                            ":proposal_id" => $proposal_id,
+                            ":filename" => $_FILES['files']['name'][$file_form_name],
+                            ":filepath" => $dest_path . $_FILES['files']['name'][$file_form_name],
+                            ":filemime" => mime_content_type($root_path . $dest_path . $_FILES['files']['name'][$file_form_name]),
+                            ":filesize" => $_FILES['files']['size'][$file_form_name],
+                            ":filetype" => 'D',
+                            ":creation_date" => time(),
+
+                        );
+                        $result = db_query($query, $args, array(
+                            'return' => Database::RETURN_INSERT_ID
+                        ));
+                        drupal_set_message($file_name . ' uploaded successfully.', 'status');
+                      }
+                      else {
+                            unlink($root_path . $dest_path . $query_result->filename);
+                            $query = "UPDATE {arduino_projects_blog_project_files} SET filename = :filename, filepath=:filepath, filemime=:filemime, filesize=:filesize, creation_date=:creation_date WHERE proposal_id = :proposal_id";
+                            $args = array(
+                                ":filename" => $_FILES['files']['name'][$file_form_name],
+                                ":filepath" => $dest_path . $_FILES['files']['name'][$file_form_name],
+                                ":filemime" => mime_content_type($root_path . $dest_path . $_FILES['files']['name'][$file_form_name]),
+                                ":filesize" => $_FILES['files']['size'][$file_form_name],
+                                ":creation_date" => time(),
+                                ":proposal_id" => $proposal_id
+                            );
+                            db_query($query, $args, array('return' => Database::RETURN_INSERT_ID,
+                            ));
+
+                            drupal_set_message($file_name . ' file updated successfully.', 'status');
+                        }
+                  }
+                    else
+                      {
+                        drupal_set_message('Error uploading file : ' . $dest_path . $file_name, 'error');
+                      }
+                      break;
+          }
+      }
+}
+
+
+/******************************** View Steps **************/
   function view_steps()
   {
     global $user;
@@ -549,11 +779,15 @@ function update_introduction_form($form, &$form_state)
     $form['#attributes'] = array(
         'enctype' => "multipart/form-data"
     );
+    /*$form['project_design_files']  = array(
+        '#type' => 'file',
+        '#title' => t('Upload the project file')
+    );*/
     $form['all_steps_submitted'] = array(
-            '#type' => 'checkbox',
-            '#title' => t('I have submitted steps for the project'),
-            '#description' => 'Once you have submited this option you are not able to upload more steps.',
-            '#required' => TRUE,
+        '#type' => 'checkbox',
+        '#title' => t('I have submitted steps for the project'),
+        '#description' => 'Once you have submited this option you are not able to upload more steps.',
+        '#required' => TRUE,
     );
     //var_dump($preference_data->approved_codable_example_files);die;
         $form['hidden_preference_id'] = array(
@@ -566,6 +800,7 @@ function update_introduction_form($form, &$form_state)
     );
         return $form;
 }
+
 
 function all_steps_submitted_check_form_submit($form,&$form_state){
     global $user;
@@ -612,6 +847,7 @@ function all_steps_submitted_check_form_submit($form,&$form_state){
                 break;
         }
       }
+
       db_query('UPDATE arduino_projects_blog_proposal SET submitted_steps = 1 WHERE id = :proposal_id',array(':proposal_id' => $proposal_data->id));
 
 }

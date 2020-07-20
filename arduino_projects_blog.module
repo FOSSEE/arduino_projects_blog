@@ -202,6 +202,17 @@ function arduino_projects_blog_menu()
 		'file' => 'upload_project.inc',
 		'weight' => 2
 	);
+	$items['arduino-projects/code/upload-design-files'] = array(
+		'title' => 'Upload Project Design Files',
+		'description' => 'Upload Project Design Files',
+		'page callback' => 'upload_design_files',
+		'access arguments' => array(
+			'arduino projects upload code'
+		),
+		'type' => MENU_LOCAL_TASK,
+		'file' => 'upload_project.inc',
+		'weight' => 4
+	);
 	$items['arduino-projects/code-approval'] = array(
 		'title' => 'Manage Project Approval',
 		'description' => 'Manage Project Approval',

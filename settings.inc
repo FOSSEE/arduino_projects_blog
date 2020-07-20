@@ -53,6 +53,15 @@ function arduino_projects_blog_settings_form($form, $form_state)
 		'#size' => 50,
 		'#default_value' => variable_get('no_of_images_allowed_project_submission', '')
 	);
+	$form['extensions']['project_design_files'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Allowed file extensions for uploading project design files'),
+		'#description' => t('A comma separated list WITHOUT SPACE of source file extensions that are permitted to be uploaded on the server'),
+		'#size' => 50,
+		'#maxlength' => 255,
+		'#required' => TRUE,
+		'#default_value' => variable_get('project_design_files_extensions', '')
+	);
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => t('Submit')
@@ -71,5 +80,6 @@ function arduino_projects_blog_settings_form_submit($form, &$form_state)
 	variable_set('reference_image_extensions', $form_state['values']['reference_image']);
 	variable_set('step_image_extensions', $form_state['values']['step_image_extensions']);
 	variable_set('no_of_images_allowed_project_submission', $form_state['values']['no_of_images_allowed_project_submission']);
+	variable_set('project_design_files_extensions', $form_state['values']['project_design_files']);
 	drupal_set_message(t('Settings updated'), 'status');
 }
